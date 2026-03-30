@@ -6,7 +6,7 @@ fastify.get("/procurar/:id", async (request, reply) => {
 });
 
 fastify.post("/test-body", async (request, reply) => {
-  const { body } = request.body;
+  const body = request.body;
   return body;
 });
 

@@ -14,8 +14,13 @@ async function consomeRota(URL, path, metodo, body) {
 }
 
 async function main() {
-  const path = "/validate?nome=davi&idade=17"
-  const response = await consomeRota("http://127.0.0.1:3000", path, "get");
+  const pessoa = {
+    nome: "Huntinho",
+    genero: "Fluído",
+    idade: 23
+  }
+  const path = "/test-body"
+  const response = await consomeRota("http://127.0.0.1:3000", path, "post", pessoa);
   console.log(response.data);
 }
 
