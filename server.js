@@ -5,14 +5,19 @@ fastify.get("/procurar/:id", async (request, reply) => {
   return id;
 });
 
+fastify.post("/test-body", async (request, reply) => {
+  const { body } = request.body;
+  return body;
+});
+
 fastify.get("/validate", async (request, reply) => {
-  const { nome, idade } = request.query
-  if (idade >= 18){
-    return `O usuário "${nome}" é maior de idade`
-  } else if (idade < 18){
-    return `O usuário "${nome}" é menor de idade`
+  const { nome, idade } = request.query;
+  if (idade >= 18) {
+    return `O usuário "${nome}" é maior de idade`;
+  } else if (idade < 18) {
+    return `O usuário "${nome}" é menor de idade`;
   }
-  return "Teste sem usuário"
+  return "Teste sem usuário";
 });
 
 const start = async () => {
