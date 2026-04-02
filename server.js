@@ -51,7 +51,7 @@ fastify.get("/retornar-users", (request, reply) => {
   }
   if (min_age != undefined) {
     listaDeUsers = listaDeUsers.filter((user) => {
-      if (user.idade >= max_age) {
+      if (user.idade >= min_age) {
         return true;
       } else {
         return false;
@@ -82,8 +82,9 @@ fastify.delete("/users/user/:id", (request, reply) => {
 
 const start = async () => {
   try {
-    await fastify.listen({ port: 3000 });
-    console.log("Server running on http://localhost:3000");
+    const host = "192.168.1.34"
+    await fastify.listen({ port: 3000, host: host });
+    console.log(`Server running on http://${host}:3000`);
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);

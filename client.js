@@ -1,5 +1,5 @@
 const axios = require("axios");
-const enderecoServer = "http://127.0.0.1:3000";
+const enderecoServer = "http://192.168.1.34:3000";
 
 async function consomeRota(URL, path, metodo, body) {
   let response = "";
@@ -18,8 +18,8 @@ async function consomeRota(URL, path, metodo, body) {
 
 async function main() {
   const pessoa = {
-    nome: "Manfe",
-    idade: 35,
+    nome: "Davi",
+    idade: 17,
     cidade: "Videira",
   };
   const path = "/users";
@@ -43,6 +43,6 @@ async function deleteUser() {
 }
 
 // main();
-// viewList();
+viewList();
 // viewUserById();
 // deleteUser();

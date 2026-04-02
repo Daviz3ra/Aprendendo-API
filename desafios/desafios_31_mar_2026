@@ -1,0 +1,4 @@
+- Criar uma rota post que receba nome, idade e cidade, forneça um id a esse usuário, e salve tudo em uma lista. A rota deve retornar a quantidade de usuários cadastrados. ("/users")
+- Criar uma rota get que retorne a lista de usuários cadastrados. Incluir um query parameter max_age e um min_age. Se tiver um max_age ou min_age a lista deve retornar os usuários pertencentes a esse intervalo de idade. ("/retornar-users")
+- Criar uma rota get que retorne as informações do usuário via ID (Utilizar params). Retornar 404 caso o usuário não seja localizado. ("/id-search/:id")
+- Criar uma rota delete que receba o ID do usuário e remova ele da lista. ("/users/user/:id")
