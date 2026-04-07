@@ -1,28 +1,37 @@
-const fastify = require("fastify")({ logger: true });
-const users = [];
-let quantityUsers = 0;
+import { type FastifyRequest, type FastifyReply, type FastifyInstance } from "fastify";
+const fastify = require("fastify")({ logger: true }) as FastifyInstance;
+const users: User[] = [];
 
-fastify.get("/procurar/:id", async (request, reply) => {
+interface Params {
+  id: number;
+}
+
+interface Query {
+  nome?: string;
+  idade?: number
+  max_age?: number
+  min_age?: number
+}
+
+interface User {
+  nome: string;
+  idade: number;
+  cidade: string;
+  id?: number;
+}
+
+let quantityUsers = 0;
+fastify.get<{ Params: Params }>("/procurar/:id", async (request: FastifyRequest<{ Params: Params }>, reply: FastifyReply) => {
   const { id } = request.params;
   return id;
 });
 
-fastify.post("/test-body", async (request, reply) => {
+fastify.post("/test-body", async (request: FastifyRequest, reply: FastifyReply) => {
   const body = request.body;
   return body;
 });
 
-fastify.get("/validate", async (request, reply) => {
-  const { nome, idade } = request.query;
-  if (idade >= 18) {
-    return `O usuário "${nome}" é maior de idade`;
-  } else if (idade < 18) {
-    return `O usuário "${nome}" é menor de idade`;
-  }
-  return "Teste sem usuário";
-});
-
-fastify.post("/users", (request, reply) => {
+fastify.post<{ Body: User }>("/users", (request: FastifyRequest<{ Body: User }>, reply: FastifyReply) => {
   try {
     const { nome, idade, cidade } = request.body;
     quantityUsers++;
@@ -36,7 +45,7 @@ fastify.post("/users", (request, reply) => {
   }
 });
 
-fastify.get("/retornar-users", (request, reply) => {
+fastify.get<{ Querystring: Query }>("/retornar-users", (request: FastifyRequest<{ Querystring: Query }>, reply: FastifyReply) => {
   const { max_age } = request.query;
   const { min_age } = request.query;
   let listaDeUsers = users;
@@ -61,7 +70,7 @@ fastify.get("/retornar-users", (request, reply) => {
   return listaDeUsers;
 });
 
-fastify.get("/id-search/:id", (request, reply) => {
+fastify.get<{ Params: Params }>("/id-search/:id", (request: FastifyRequest<{ Params: Params }>, reply: FastifyReply) => {
   const { id } = request.params;
   const user = users.find((user) => user.id == id);
   if (!user) {
@@ -70,7 +79,7 @@ fastify.get("/id-search/:id", (request, reply) => {
   return user;
 });
 
-fastify.delete("/users/user/:id", (request, reply) => {
+fastify.delete<{ Params: Params }>("/users/user/:id", (request: FastifyRequest<{ Params: Params }>, reply: FastifyReply) => {
   const { id } = request.params;
   const index = users.findIndex((user) => user.id == id);
   if (index === -1) {
