@@ -1,4 +1,8 @@
-import { type FastifyRequest, type FastifyReply, type FastifyInstance } from "fastify";
+import {
+  type FastifyRequest,
+  type FastifyReply,
+  type FastifyInstance,
+} from "fastify";
 const fastify = require("fastify")({ logger: true }) as FastifyInstance;
 const users: User[] = [];
 
@@ -7,10 +11,8 @@ interface Params {
 }
 
 interface Query {
-  nome?: string;
-  idade?: number
-  max_age?: number
-  min_age?: number
+  max_age?: number;
+  min_age?: number;
 }
 
 interface User {
@@ -21,77 +23,95 @@ interface User {
 }
 
 let quantityUsers = 0;
-fastify.get<{ Params: Params }>("/procurar/:id", async (request: FastifyRequest<{ Params: Params }>, reply: FastifyReply) => {
-  const { id } = request.params;
-  return id;
-});
+fastify.get<{ Params: Params }>(
+  "/procurar/:id",
+  async (request: FastifyRequest<{ Params: Params }>, reply: FastifyReply) => {
+    const { id } = request.params;
+    return id;
+  },
+);
 
-fastify.post("/test-body", async (request: FastifyRequest, reply: FastifyReply) => {
-  const body = request.body;
-  return body;
-});
+fastify.post(
+  "/test-body",
+  async (request: FastifyRequest, reply: FastifyReply) => {
+    const body = request.body;
+    return body;
+  },
+);
 
-fastify.post<{ Body: User }>("/users", (request: FastifyRequest<{ Body: User }>, reply: FastifyReply) => {
-  try {
-    const { nome, idade, cidade } = request.body;
-    quantityUsers++;
-    const id = quantityUsers;
-    const user = { nome, idade, cidade, id };
-    users.push(user);
-    return { sucess: true, userId: id };
-  } catch (err) {
-    console.log(err);
-    return { sucess: false };
-  }
-});
+fastify.post<{ Body: User }>(
+  "/users",
+  (request: FastifyRequest<{ Body: User }>, reply: FastifyReply) => {
+    try {
+      const { nome, idade, cidade } = request.body;
+      quantityUsers++;
+      const id = quantityUsers;
+      const user = { nome, idade, cidade, id };
+      users.push(user);
+      return { sucess: true, userId: id };
+    } catch (err) {
+      console.log(err);
+      return { sucess: false };
+    }
+  },
+);
 
-fastify.get<{ Querystring: Query }>("/retornar-users", (request: FastifyRequest<{ Querystring: Query }>, reply: FastifyReply) => {
-  const { max_age } = request.query;
-  const { min_age } = request.query;
-  let listaDeUsers = users;
-  if (max_age != undefined) {
-    listaDeUsers = listaDeUsers.filter((user) => {
-      if (user.idade <= max_age) {
-        return true;
-      } else {
-        return false;
-      }
-    });
-  }
-  if (min_age != undefined) {
-    listaDeUsers = listaDeUsers.filter((user) => {
-      if (user.idade >= min_age) {
-        return true;
-      } else {
-        return false;
-      }
-    });
-  }
-  return listaDeUsers;
-});
+fastify.get<{ Querystring: Query }>(
+  "/retornar-users",
+  (request: FastifyRequest<{ Querystring: Query }>, reply: FastifyReply) => {
+    const { max_age } = request.query;
+    const { min_age } = request.query;
+    let listaDeUsers = users;
+    if (max_age != undefined) {
+      listaDeUsers = listaDeUsers.filter((user) => {
+        if (user.idade <= max_age) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+    }
+    if (min_age != undefined) {
+      listaDeUsers = listaDeUsers.filter((user) => {
+        if (user.idade >= min_age) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+    }
+    return listaDeUsers;
+  },
+);
 
-fastify.get<{ Params: Params }>("/id-search/:id", (request: FastifyRequest<{ Params: Params }>, reply: FastifyReply) => {
-  const { id } = request.params;
-  const user = users.find((user) => user.id == id);
-  if (!user) {
-    return reply.code(404).send({ error: "Usuário não encontrado." });
-  }
-  return user;
-});
+fastify.get<{ Params: Params }>(
+  "/id-search/:id",
+  (request: FastifyRequest<{ Params: Params }>, reply: FastifyReply) => {
+    const { id } = request.params;
+    const user = users.find((user) => user.id == id);
+    if (!user) {
+      return reply.code(404).send({ error: "Usuário não encontrado." });
+    }
+    return user;
+  },
+);
 
-fastify.delete<{ Params: Params }>("/users/user/:id", (request: FastifyRequest<{ Params: Params }>, reply: FastifyReply) => {
-  const { id } = request.params;
-  const index = users.findIndex((user) => user.id == id);
-  if (index === -1) {
-    return reply.code(404).send({ error: "Usuário não encontrado." });
-  }
-  users.splice(index, 1);
-  return { message: `Usuário ${id} deletado` };
-});
+fastify.delete<{ Params: Params }>(
+  "/users/user/:id",
+  (request: FastifyRequest<{ Params: Params }>, reply: FastifyReply) => {
+    const { id } = request.params;
+    const index = users.findIndex((user) => user.id == id);
+    if (index === -1) {
+      return reply.code(404).send({ error: "Usuário não encontrado." });
+    }
+    users.splice(index, 1);
+    return { message: `Usuário ${id} deletado` };
+  },
+);
 
 const start = async () => {
   try {
-    const host = "192.168.1.34"
+    const host = "192.168.1.34";
     await fastify.listen({ port: 3000, host: host });
     console.log(`Server running on http://${host}:3000`);
   } catch (err) {
