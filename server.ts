@@ -1,3 +1,4 @@
+import { z } from "zod";
 import {
   type FastifyRequest,
   type FastifyReply,
@@ -16,37 +17,29 @@ interface Query {
 }
 
 interface User {
-  nome: string;
-  idade: number;
-  cidade: string;
+  name: string;
+  age: number;
+  city: string;
   id?: number;
 }
 
-let quantityUsers = 0;
-fastify.get<{ Params: Params }>(
-  "/procurar/:id",
-  async (request: FastifyRequest<{ Params: Params }>, reply: FastifyReply) => {
-    const { id } = request.params;
-    return id;
-  },
-);
+const usernameSchema = z.object({
+  name: z.string().min(3, "Mínimo 3 caracteres").max(20),
+  age: z.number().min(12).max(100),
+  city: z.string().min(3),
+  id: z.number().positive().optional(),
+});
 
-fastify.post(
-  "/test-body",
-  async (request: FastifyRequest, reply: FastifyReply) => {
-    const body = request.body;
-    return body;
-  },
-);
+let quantityUsers = 0;
 
 fastify.post<{ Body: User }>(
   "/users",
   (request: FastifyRequest<{ Body: User }>, reply: FastifyReply) => {
     try {
-      const { nome, idade, cidade } = request.body;
+      const { name, age, city } = request.body;
       quantityUsers++;
       const id = quantityUsers;
-      const user = { nome, idade, cidade, id };
+      const user = { name, age, city, id };
       users.push(user);
       return { sucess: true, userId: id };
     } catch (err) {
@@ -57,14 +50,14 @@ fastify.post<{ Body: User }>(
 );
 
 fastify.get<{ Querystring: Query }>(
-  "/retornar-users",
+  "/return-users",
   (request: FastifyRequest<{ Querystring: Query }>, reply: FastifyReply) => {
     const { max_age } = request.query;
     const { min_age } = request.query;
-    let listaDeUsers = users;
+    let userList = users;
     if (max_age != undefined) {
-      listaDeUsers = listaDeUsers.filter((user) => {
-        if (user.idade <= max_age) {
+      userList = userList.filter((user) => {
+        if (user.age <= max_age) {
           return true;
         } else {
           return false;
@@ -72,15 +65,15 @@ fastify.get<{ Querystring: Query }>(
       });
     }
     if (min_age != undefined) {
-      listaDeUsers = listaDeUsers.filter((user) => {
-        if (user.idade >= min_age) {
+      userList = userList.filter((user) => {
+        if (user.age >= min_age) {
           return true;
         } else {
           return false;
         }
       });
     }
-    return listaDeUsers;
+    return userList;
   },
 );
 
@@ -97,7 +90,7 @@ fastify.get<{ Params: Params }>(
 );
 
 fastify.delete<{ Params: Params }>(
-  "/users/user/:id",
+  "/users/:id",
   (request: FastifyRequest<{ Params: Params }>, reply: FastifyReply) => {
     const { id } = request.params;
     const index = users.findIndex((user) => user.id == id);
