@@ -1,27 +1,16 @@
 import { z } from "zod";
-import {
+import Fastify, {
   type FastifyRequest,
   type FastifyReply,
-  type FastifyInstance,
 } from "fastify";
-const fastify = require("fastify")({ logger: true }) as FastifyInstance;
+
+let quantityUsers = 0;
+const fastify = Fastify();
 const users: User[] = [];
 
-interface Params {
-  id: number;
-}
-
-interface Query {
-  max_age?: number;
-  min_age?: number;
-}
-
-interface User {
-  name: string;
-  age: number;
-  city: string;
-  id?: number;
-}
+const idSchema = z.object({
+  id: z.coerce.number().min(1).int(),
+});
 
 const usernameSchema = z.object({
   name: z.string().min(3, "Mínimo 3 caracteres").max(20),
@@ -30,13 +19,24 @@ const usernameSchema = z.object({
   id: z.number().positive().optional(),
 });
 
-let quantityUsers = 0;
+const ageSchema = z.object({
+  max_age: z.number().min(0).optional(),
+  min_age: z.number().min(0).optional(),
+});
+
+type User = z.infer<typeof usernameSchema>;
+type Id = z.infer<typeof idSchema>;
+type Age = z.infer<typeof ageSchema>;
 
 fastify.post<{ Body: User }>(
   "/users",
   (request: FastifyRequest<{ Body: User }>, reply: FastifyReply) => {
     try {
-      const { name, age, city } = request.body;
+      const result = usernameSchema.safeParse(request.body);
+      if (!result.success) {
+        return reply.code(400).send(result.error.format());
+      }
+      const { name, age, city } = result.data;
       quantityUsers++;
       const id = quantityUsers;
       const user = { name, age, city, id };
@@ -49,14 +49,13 @@ fastify.post<{ Body: User }>(
   },
 );
 
-fastify.get<{ Querystring: Query }>(
-  "/return-users",
-  (request: FastifyRequest<{ Querystring: Query }>, reply: FastifyReply) => {
-    const { max_age } = request.query;
-    const { min_age } = request.query;
-    let userList = users;
+fastify.get<{ Querystring: Age }>(
+  "/users",
+  (request: FastifyRequest<{ Querystring: Age }>, reply: FastifyReply) => {
+    const { min_age, max_age } = request.query;
+    let usersList = users;
     if (max_age != undefined) {
-      userList = userList.filter((user) => {
+      usersList = usersList.filter((user) => {
         if (user.age <= max_age) {
           return true;
         } else {
@@ -65,7 +64,7 @@ fastify.get<{ Querystring: Query }>(
       });
     }
     if (min_age != undefined) {
-      userList = userList.filter((user) => {
+      usersList = usersList.filter((user) => {
         if (user.age >= min_age) {
           return true;
         } else {
@@ -73,14 +72,18 @@ fastify.get<{ Querystring: Query }>(
         }
       });
     }
-    return userList;
+    return reply.code(200).send(usersList);
   },
 );
 
-fastify.get<{ Params: Params }>(
-  "/id-search/:id",
-  (request: FastifyRequest<{ Params: Params }>, reply: FastifyReply) => {
-    const { id } = request.params;
+fastify.get<{ Params: Id }>(
+  "/users/:id",
+  (request: FastifyRequest<{ Params: Id }>, reply: FastifyReply) => {
+    const result = idSchema.safeParse(request.params.id);
+    if (!result.success) {
+      return reply.code(400).send(result.error.format());
+    }
+    const id = result.data.id;
     const user = users.find((user) => user.id == id);
     if (!user) {
       return reply.code(404).send({ error: "Usuário não encontrado." });
@@ -89,10 +92,14 @@ fastify.get<{ Params: Params }>(
   },
 );
 
-fastify.delete<{ Params: Params }>(
+fastify.delete<{ Params: Id }>(
   "/users/:id",
-  (request: FastifyRequest<{ Params: Params }>, reply: FastifyReply) => {
-    const { id } = request.params;
+  (request: FastifyRequest<{ Params: Id }>, reply: FastifyReply) => {
+    const result = idSchema.safeParse(request.params.id);
+    if (!result.success) {
+      return reply.code(400).send(result.error.format());
+    }
+    const id = result.data.id;
     const index = users.findIndex((user) => user.id == id);
     if (index === -1) {
       return reply.code(404).send({ error: "Usuário não encontrado." });

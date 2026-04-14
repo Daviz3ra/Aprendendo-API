@@ -1,4 +1,4 @@
-const axios = require("axios");
+import axios from "axios";
 const enderecoServer = "http://192.168.1.34:3000";
 
 async function consomeRota(URL, path, metodo, body) {
@@ -16,11 +16,36 @@ async function consomeRota(URL, path, metodo, body) {
   return response;
 }
 
-async function main() {
+async function createUser() {
   const pessoa = {
-    nome: "Davi",
-    idade: 17,
-    cidade: "Videira",
+    name: "Davi",
+    age: 17,
+    city: "Videira",
+  };
+  const pessoa1 = {
+    name: "Lucas",
+    age: 25,
+    city: "São Paulo",
+  };
+  const pessoa2 = {
+    name: "Mariana",
+    age: 30,
+    city: "Curitiba",
+  };
+  const pessoa3 = {
+    name: "João",
+    age: 18,
+    city: "Florianópolis",
+  };
+  const pessoa4 = {
+    name: "Ana Clara",
+    age: 22,
+    city: "Rio de Janeiro",
+  };
+  const pessoa5 = {
+    name: "Pedro",
+    age: 40,
+    city: "Porto Alegre",
   };
   const path = "/users";
   const response = await consomeRota(enderecoServer, path, "post", pessoa);
@@ -28,21 +53,21 @@ async function main() {
 }
 
 async function viewList() {
-  const response = await consomeRota(enderecoServer, "/retornar-users", "get");
+  const response = await consomeRota(enderecoServer, "/users", "get");
   console.log(response.data);
 }
 
 async function viewUserById() {
-  const response = await consomeRota(enderecoServer, "/id-search/3", "get");
+  const response = await consomeRota(enderecoServer, "/users/3", "get");
   console.log(response.data);
 }
 
 async function deleteUser() {
-  const response = await consomeRota(enderecoServer, "/users/user/1", "delete");
+  const response = await consomeRota(enderecoServer, "/users/2", "delete");
   console.log(response.data);
 }
 
-// main();
-viewList();
-// viewUserById();
+createUser();
+// viewList();
+viewUserById();
 // deleteUser();
