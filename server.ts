@@ -1,8 +1,5 @@
 import { z } from "zod";
-import Fastify, {
-  type FastifyRequest,
-  type FastifyReply,
-} from "fastify";
+import Fastify, { type FastifyRequest, type FastifyReply } from "fastify";
 
 let quantityUsers = 0;
 const fastify = Fastify();
@@ -59,14 +56,10 @@ fastify.get<{ Querystring: Age }>(
     const { min_age, max_age } = result.data;
     let usersList = users;
     if (max_age != undefined) {
-      usersList = usersList.filter((user) => {
-        return user.age <= max_age
-      });
+      usersList = usersList.filter((user) => user.age <= max_age);
     }
     if (min_age != undefined) {
-      usersList = usersList.filter((user) => {
-        return user.age >= min_age
-      });
+      usersList = usersList.filter((user) => user.age >= min_age);
     }
     return reply.code(200).send(usersList);
   },
