@@ -56,20 +56,12 @@ fastify.get<{ Querystring: Age }>(
     let usersList = users;
     if (max_age != undefined) {
       usersList = usersList.filter((user) => {
-        if (user.age <= max_age) {
-          return true;
-        } else {
-          return false;
-        }
+        return user.age <= max_age
       });
     }
     if (min_age != undefined) {
       usersList = usersList.filter((user) => {
-        if (user.age >= min_age) {
-          return true;
-        } else {
-          return false;
-        }
+        return user.age >= min_age
       });
     }
     return reply.code(200).send(usersList);
