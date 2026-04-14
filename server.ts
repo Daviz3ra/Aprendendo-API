@@ -20,8 +20,8 @@ const usernameSchema = z.object({
 });
 
 const ageSchema = z.object({
-  max_age: z.number().min(0).optional(),
-  min_age: z.number().min(0).optional(),
+  max_age: z.number().min(0).max(100).optional(),
+  min_age: z.number().min(0).max(100).optional(),
 });
 
 type User = z.infer<typeof usernameSchema>;
