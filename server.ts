@@ -52,7 +52,11 @@ fastify.post<{ Body: User }>(
 fastify.get<{ Querystring: Age }>(
   "/users",
   (request: FastifyRequest<{ Querystring: Age }>, reply: FastifyReply) => {
-    const { min_age, max_age } = request.query;
+    const result = ageSchema.safeParse(request.query);
+    if (!result.success) {
+      return reply.code(400).send(result.error.format());
+    }
+    const { min_age, max_age } = result.data;
     let usersList = users;
     if (max_age != undefined) {
       usersList = usersList.filter((user) => {
