@@ -6,7 +6,7 @@ const fastify = Fastify();
 const users: User[] = [];
 
 const idSchema = z.object({
-  id: z.coerce.number().min(1).int(),
+  id: z.coerce.number().min(1, "O ID deve ser maior que 0").int(),
 });
 
 const usernameSchema = z.object({
@@ -27,7 +27,7 @@ type Age = z.infer<typeof ageSchema>;
 
 fastify.post<{ Body: User }>(
   "/users",
-  (request: FastifyRequest<{ Body: User }>, reply: FastifyReply) => {
+  (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const result = usernameSchema.safeParse(request.body);
       if (!result.success) {
@@ -48,7 +48,7 @@ fastify.post<{ Body: User }>(
 
 fastify.get<{ Querystring: Age }>(
   "/users",
-  (request: FastifyRequest<{ Querystring: Age }>, reply: FastifyReply) => {
+  (request: FastifyRequest, reply: FastifyReply) => {
     const result = ageSchema.safeParse(request.query);
     if (!result.success) {
       return reply.code(400).send(result.error.format());
@@ -67,8 +67,8 @@ fastify.get<{ Querystring: Age }>(
 
 fastify.get<{ Params: Id }>(
   "/users/:id",
-  (request: FastifyRequest<{ Params: Id }>, reply: FastifyReply) => {
-    const result = idSchema.safeParse(request.params.id);
+  (request: FastifyRequest, reply: FastifyReply) => {
+    const result = idSchema.safeParse(request.params);
     if (!result.success) {
       return reply.code(400).send(result.error.format());
     }
@@ -83,8 +83,8 @@ fastify.get<{ Params: Id }>(
 
 fastify.delete<{ Params: Id }>(
   "/users/:id",
-  (request: FastifyRequest<{ Params: Id }>, reply: FastifyReply) => {
-    const result = idSchema.safeParse(request.params.id);
+  (request: FastifyRequest, reply: FastifyReply) => {
+    const result = idSchema.safeParse(request.params);
     if (!result.success) {
       return reply.code(400).send(result.error.format());
     }
